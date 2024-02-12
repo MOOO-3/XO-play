@@ -8,6 +8,7 @@ let board = [
 ];
 let currentPlayer = "X";
 let gameover = false;
+let playingComputer = false;
 
 function printBoard() {
   boardElement.innerHTML = "";
@@ -50,9 +51,7 @@ function checkTie() {
   return board.every((row) => row.every((cell) => cell));
 }
 
-function handleClick(row, col) {
-  if (gameover || board[row][col]) return;
-  board[row][col] = currentPlayer;
+function checkGameState() {
   printBoard();
   if (checkWinner()) {
     messageElement.textContent = `${currentPlayer} wins!`;
@@ -65,7 +64,29 @@ function handleClick(row, col) {
   }
 }
 
+function handleClick(row, col) {
+  if (gameover || board[row][col]) return;
+
+  board[row][col] = currentPlayer;
+  checkGameState();
+
+  if (playingComputer && currentPlayer === "O" && !gameover) {
+    let emptyCells = [];
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j] === "") {
+          emptyCells.push([i, j]);
+        }
+      }
+    }
+    let randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    board[randomCell[0]][randomCell[1]] = currentPlayer;
+    checkGameState();
+  }
+}
+
 resetButton.addEventListener("click", () => {
+  playingComputer = false;
   board = [
     ["", "", ""],
     ["", "", ""],
@@ -75,6 +96,11 @@ resetButton.addEventListener("click", () => {
   gameover = false;
   messageElement.textContent = "";
   printBoard();
+});
+
+computer.addEventListener("click", () => {
+  playingComputer = true;
+  console.log("Computer is playing " + playingComputer);
 });
 
 printBoard();
